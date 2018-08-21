@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.net.*;
 import java.util.UUID;
 
+import com.microsoft.azure.datalake.store.telemetry.JobIdProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -258,6 +259,10 @@ class HttpTransport {
             conn.setRequestProperty("x-ms-client-request-id", opts.requestid);
             String latencyHeader = LatencyTracker.get();
             if (latencyHeader != null) conn.setRequestProperty("x-ms-adl-client-latency", latencyHeader);
+            String jobId = JobIdProvider.getJobId();
+            if (jobId != null) conn.setRequestProperty("x-ms-adl-client-job-id", jobId);
+            String engineName = JobIdProvider.getEngineName();
+            if (engineName != null) conn.setRequestProperty("x-ms-adl-client-engine-name", engineName);
             if (client.getTiHeaderValue() != null)
                 conn.setRequestProperty("x-ms-tracking-info", client.getTiHeaderValue());
             conn.setConnectTimeout(opts.timeout);
