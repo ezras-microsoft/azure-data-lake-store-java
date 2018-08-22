@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
  */
 abstract class ClassNiffler {
 
-    public static ClassNiffler get() {
+    public static ClassNiffler getDefault() {
         return new ClassNiffler() {
             @Override
             public Class<?> forName(String name) throws ClassNotFoundException {

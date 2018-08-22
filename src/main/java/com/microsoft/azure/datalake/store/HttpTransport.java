@@ -259,9 +259,9 @@ class HttpTransport {
             conn.setRequestProperty("x-ms-client-request-id", opts.requestid);
             String latencyHeader = LatencyTracker.get();
             if (latencyHeader != null) conn.setRequestProperty("x-ms-adl-client-latency", latencyHeader);
-            String jobId = JobIdProvider.getJobId();
+            String jobId = JobIdProvider.get().getApplicationId();
             if (jobId != null) conn.setRequestProperty("x-ms-adl-client-job-id", jobId);
-            String engineName = JobIdProvider.getEngineName();
+            String engineName = JobIdProvider.get().getEngineName();
             if (engineName != null) conn.setRequestProperty("x-ms-adl-client-engine-name", engineName);
             if (client.getTiHeaderValue() != null)
                 conn.setRequestProperty("x-ms-tracking-info", client.getTiHeaderValue());
