@@ -25,7 +25,7 @@ public class JobInfoProvider {
     private enum InfoFactory {
         /**
          * If we're running in a Spark job (defined as having SparkEnv in the classpath),
-         * this will attempt to get an application Id through SparkEnv.getDefault().conf().getAppId()
+         * this will attempt to get an application Id through SparkEnv.get().conf().getAppId()
          * It is still not guaranteed to succeed on every call, as it may be an old version of Spark (pre 1.4)
          * or the application may not actually be a Spark job despite having core Spark in the classpath.
          * In those cases it returns null.
@@ -37,7 +37,7 @@ public class JobInfoProvider {
                 try {
                     Class<?> cSparkConf = niffler.forName("org.apache.spark.SparkConf");
                     Class<?> cSparkEnv = niffler.forName("org.apache.spark.SparkEnv");
-                    Method mSparkEnvStaticGet = niffler.getMethod(cSparkEnv, "getDefault");
+                    Method mSparkEnvStaticGet = niffler.getMethod(cSparkEnv, "get");
                     Method mSparkEnvConf = niffler.getMethod(cSparkEnv, "conf");
                     Method mSparkConfGetAppId = niffler.getMethod(cSparkConf, "getAppId");
                     Object oSparkEnv = niffler.invoke(mSparkEnvStaticGet, null);
