@@ -56,7 +56,7 @@ public class JobInfoProvider {
         /**
          * Factory method to acquire job information for each possible compute engine
          * @param niffler implementation to be used in reflective construction
-         * @return JobInfoProvider instance
+         * @return JobInfoProvider instance or null if it cannot be built
          */
         abstract JobInfoProvider build(ClassNiffler niffler);
     }
