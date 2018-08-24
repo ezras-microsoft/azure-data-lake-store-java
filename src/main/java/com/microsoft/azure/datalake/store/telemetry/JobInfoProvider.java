@@ -50,8 +50,7 @@ public class JobInfoProvider {
                     return null;
                 }
             }
-        }
-        ;
+        };
 
         /**
          * Factory method to acquire job information for each possible compute engine
