@@ -6,10 +6,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
+import static com.microsoft.azure.datalake.store.telemetry.Util.resetJobInfoProviderSingleton;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -19,16 +19,6 @@ public class TestJobInfoProvider {
         Properties prop = HelperUtils.getProperties();
         Assume.assumeTrue(Boolean.parseBoolean(prop.getProperty("MockTestsEnabled", "true")));
         resetJobInfoProviderSingleton();
-    }
-
-    /**
-     * Singletons should be reset between tests
-     * This ensures that tests do not interfere with one another
-     */
-    private void resetJobInfoProviderSingleton() throws NoSuchFieldException, IllegalAccessException {
-        Field instance = JobInfoProvider.class.getDeclaredField("instance");
-        instance.setAccessible(true);
-        instance.set(null, null);
     }
 
     /**
