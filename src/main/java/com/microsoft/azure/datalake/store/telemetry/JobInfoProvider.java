@@ -8,16 +8,16 @@ import java.lang.reflect.Method;
 /**
  * Thread-safe singleton for acquiring job information reflectively
  */
-public class JobIdProvider {
+public class JobInfoProvider {
     private static final Logger LOG =
-            LoggerFactory.getLogger(JobIdProvider.class);
+            LoggerFactory.getLogger(JobInfoProvider.class);
 
     /**
      * Compute engine identifiers
      */
     private final String applicationId;
     private final String engineName;
-    private static JobIdProvider instance = null;
+    private static JobInfoProvider instance = null;
 
     /**
      * The compute engines that we will try to extract job information from, in order of declaration
@@ -32,7 +32,7 @@ public class JobIdProvider {
          */
         SPARK {
             @Override
-            JobIdProvider build(ClassNiffler niffler) {
+            JobInfoProvider build(ClassNiffler niffler) {
                 LOG.debug("Trying to get job info for Spark");
                 try {
                     Class<?> cSparkConf = niffler.forName("org.apache.spark.SparkConf");
@@ -44,7 +44,7 @@ public class JobIdProvider {
                     Object oSparkConf = niffler.invoke(mSparkEnvConf, oSparkEnv);
                     String appId = (String) niffler.invoke(mSparkConfGetAppId, oSparkConf);
                     LOG.debug("Successfully got job info for Spark");
-                    return new JobIdProvider(appId, "spark");
+                    return new JobInfoProvider(appId, "spark");
                 } catch (ReflectiveOperationException e) {
                     LOG.debug("Failed to get job info for Spark", e);
                     return null;
@@ -56,21 +56,21 @@ public class JobIdProvider {
         /**
          * Factory method to acquire job information for each possible compute engine
          * @param niffler implementation to be used in reflective construction
-         * @return JobIdProvider instance
+         * @return JobInfoProvider instance
          */
-        abstract JobIdProvider build(ClassNiffler niffler);
+        abstract JobInfoProvider build(ClassNiffler niffler);
     }
 
-    private JobIdProvider(String applicationId, String engineName) {
+    private JobInfoProvider(String applicationId, String engineName) {
         this.applicationId = applicationId;
         this.engineName = engineName;
     }
 
     /**
-     * Thread-safe instance getter for singleton JobIdProvider
-     * @return JobIdProvider instance
+     * Thread-safe instance getter for singleton JobInfoProvider
+     * @return JobInfoProvider instance
      */
-    public static JobIdProvider get() {
+    public static JobInfoProvider get() {
         return get(ClassNiffler.getDefault());
     }
 
@@ -78,12 +78,12 @@ public class JobIdProvider {
      * Package private instance getter for test
      * @param niffler implementation to be used in reflective construction
      */
-    static JobIdProvider get(ClassNiffler niffler) {
+    static JobInfoProvider get(ClassNiffler niffler) {
         // double-checked locking for performant thread safety
         if (instance == null) {
-            synchronized (JobIdProvider.class) {
+            synchronized (JobInfoProvider.class) {
                 if (instance == null) {
-                    LOG.debug("First invocation of JobIdProvider, creating an IdFactory");
+                    LOG.debug("First invocation of JobInfoProvider, creating an IdFactory");
                     for (InfoFactory infoFactory : InfoFactory.values()) {
                         instance = infoFactory.build(niffler);
                         if (instance != null) {
@@ -91,7 +91,7 @@ public class JobIdProvider {
                             return instance;
                         }
                     }
-                    instance = new JobIdProvider(null, null);
+                    instance = new JobInfoProvider(null, null);
                 }
             }
         }

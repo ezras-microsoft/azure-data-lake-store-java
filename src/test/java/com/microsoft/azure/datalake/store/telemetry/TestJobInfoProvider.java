@@ -13,23 +13,23 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class TestJobIdProvider {
+public class TestJobInfoProvider {
     @Before
     public void setup() throws IOException, NoSuchFieldException, IllegalAccessException {
         Properties prop = HelperUtils.getProperties();
         Assume.assumeTrue(Boolean.parseBoolean(prop.getProperty("MockTestsEnabled", "true")));
-        resetJobIdProviderSingleton();
+        resetJobInfoProviderSingleton();
     }
 
-    private void resetJobIdProviderSingleton() throws NoSuchFieldException, IllegalAccessException {
-        Field instance = JobIdProvider.class.getDeclaredField("instance");
+    private void resetJobInfoProviderSingleton() throws NoSuchFieldException, IllegalAccessException {
+        Field instance = JobInfoProvider.class.getDeclaredField("instance");
         instance.setAccessible(true);
         instance.set(null, null);
     }
 
     @Test
-    public void testJobIdProviderHandlesInabilityToInstantiateFactories() {
-        JobIdProvider jobIdProvider = JobIdProvider.get(new ClassNiffler() {
+    public void testJobInfoProviderHandlesInabilityToInstantiateFactories() {
+        JobInfoProvider jobInfoProvider = JobInfoProvider.get(new ClassNiffler() {
             @Override
             public Class<?> forName(String name) throws ClassNotFoundException {
                 throw new ClassNotFoundException();
@@ -45,14 +45,14 @@ public class TestJobIdProvider {
                 return null;
             }
         });
-        assertNull(jobIdProvider.getApplicationId());
-        assertNull(jobIdProvider.getEngineName());
+        assertNull(jobInfoProvider.getApplicationId());
+        assertNull(jobInfoProvider.getEngineName());
     }
 
 
     @Test
     public void testBuildsNullIdFactoryWhenClassesArePresentButNotMethods() {
-        JobIdProvider jobIdProvider = JobIdProvider.get(new ClassNiffler() {
+        JobInfoProvider jobInfoProvider = JobInfoProvider.get(new ClassNiffler() {
             @Override
             public Class<?> forName(String name) {
                 return null;
@@ -68,13 +68,13 @@ public class TestJobIdProvider {
                 return null;
             }
         });
-        assertNull(jobIdProvider.getApplicationId());
-        assertNull(jobIdProvider.getEngineName());
+        assertNull(jobInfoProvider.getApplicationId());
+        assertNull(jobInfoProvider.getEngineName());
     }
 
     @Test
     public void testBuildsNullIdFactoryWhenMethodInvocationFails() {
-        JobIdProvider jobIdProvider = JobIdProvider.get(new ClassNiffler() {
+        JobInfoProvider jobInfoProvider = JobInfoProvider.get(new ClassNiffler() {
             @Override
             public Class<?> forName(String name) {
                 return null;
@@ -90,13 +90,13 @@ public class TestJobIdProvider {
                 throw new IllegalAccessException();
             }
         });
-        assertNull(jobIdProvider.getApplicationId());
-        assertNull(jobIdProvider.getEngineName());
+        assertNull(jobInfoProvider.getApplicationId());
+        assertNull(jobInfoProvider.getEngineName());
     }
 
     @Test
     public void testBuildsSparkIdFactoryWhenSparkClassesArePresent() {
-        JobIdProvider jobIdProvider = JobIdProvider.get(new ClassNiffler() {
+        JobInfoProvider jobInfoProvider = JobInfoProvider.get(new ClassNiffler() {
             @Override
             public Class<?> forName(String name) {
                 return null;
@@ -112,8 +112,8 @@ public class TestJobIdProvider {
                 return "123";
             }
         });
-        assertEquals("123", jobIdProvider.getApplicationId());
-        assertEquals("spark", jobIdProvider.getEngineName());
+        assertEquals("123", jobInfoProvider.getApplicationId());
+        assertEquals("spark", jobInfoProvider.getEngineName());
     }
 
     @Test
