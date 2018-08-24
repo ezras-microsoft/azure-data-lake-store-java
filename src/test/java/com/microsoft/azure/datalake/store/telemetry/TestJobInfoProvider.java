@@ -21,25 +21,34 @@ public class TestJobInfoProvider {
         resetJobInfoProviderSingleton();
     }
 
+    /**
+     * Singletons should be reset between tests
+     * This ensures that tests do not interfere with one another
+     */
     private void resetJobInfoProviderSingleton() throws NoSuchFieldException, IllegalAccessException {
         Field instance = JobInfoProvider.class.getDeclaredField("instance");
         instance.setAccessible(true);
         instance.set(null, null);
     }
 
+    /**
+     * Scenario:
+     *  No known compute engine classes are available
+     * Expected result:
+     *  1. A JobInfoFactory is constructed
+     *  2. All of its job info is null
+     */
     @Test
-    public void testJobInfoProviderHandlesInabilityToInstantiateFactories() {
+    public void testJobInfoProviderWorksWhenEngineClassGettingFails() {
         JobInfoProvider jobInfoProvider = JobInfoProvider.get(new ClassNiffler() {
             @Override
             public Class<?> forName(String name) throws ClassNotFoundException {
                 throw new ClassNotFoundException();
             }
-
             @Override
             public Method getMethod(Class<?> cls, String name) {
                 return null;
             }
-
             @Override
             public Object invoke(Method method, Object obj, Object... args) {
                 return null;
@@ -49,20 +58,24 @@ public class TestJobInfoProvider {
         assertNull(jobInfoProvider.getEngineName());
     }
 
-
+    /**
+     * Scenario:
+     *  Attempts to get class methods fail
+     * Expected result:
+     *  1. A JobInfoFactory is constructed
+     *  2. All of its job info is null
+     */
     @Test
-    public void testBuildsNullIdFactoryWhenClassesArePresentButNotMethods() {
+    public void testJobInfoProviderWorksWhenEngineMethodGettingFails() {
         JobInfoProvider jobInfoProvider = JobInfoProvider.get(new ClassNiffler() {
             @Override
             public Class<?> forName(String name) {
                 return null;
             }
-
             @Override
             public Method getMethod(Class<?> cls, String name) throws NoSuchMethodException {
                 throw new NoSuchMethodException();
             }
-
             @Override
             public Object invoke(Method method, Object obj, Object... args) {
                 return null;
@@ -72,19 +85,24 @@ public class TestJobInfoProvider {
         assertNull(jobInfoProvider.getEngineName());
     }
 
+    /**
+     * Scenario:
+     *  Attempts to invoke class methods fail
+     * Expected result:
+     *  1. A JobInfoFactory is constructed
+     *  2. All of its job info is null
+     */
     @Test
-    public void testBuildsNullIdFactoryWhenMethodInvocationFails() {
+    public void testJobInfoProviderWorksWhenEngineMethodInvocationFails() {
         JobInfoProvider jobInfoProvider = JobInfoProvider.get(new ClassNiffler() {
             @Override
             public Class<?> forName(String name) {
                 return null;
             }
-
             @Override
             public Method getMethod(Class<?> cls, String name) {
                 return null;
             }
-
             @Override
             public Object invoke(Method method, Object obj, Object... args) throws IllegalAccessException {
                 throw new IllegalAccessException();
@@ -94,19 +112,24 @@ public class TestJobInfoProvider {
         assertNull(jobInfoProvider.getEngineName());
     }
 
+    /**
+     * Scenario:
+     *  The first compute engine (Spark) tried succeeds in loading classes, methods, and method invocation
+     * Expected result:
+     *  1. A JobInfoFactory is constructed
+     *  2. All its job info is populated with values
+     */
     @Test
-    public void testBuildsSparkIdFactoryWhenSparkClassesArePresent() {
+    public void testJobInfoProviderWorksWhenSparkRequirementsArePresent() {
         JobInfoProvider jobInfoProvider = JobInfoProvider.get(new ClassNiffler() {
             @Override
             public Class<?> forName(String name) {
                 return null;
             }
-
             @Override
             public Method getMethod(Class<?> cls, String name) {
                 return null;
             }
-
             @Override
             public Object invoke(Method method, Object obj, Object... args) {
                 return "123";
@@ -114,10 +137,5 @@ public class TestJobInfoProvider {
         });
         assertEquals("123", jobInfoProvider.getApplicationId());
         assertEquals("spark", jobInfoProvider.getEngineName());
-    }
-
-    @Test
-    public void testBuildsNullIdFactoryWhenSparkClassesFailToLoadMethods() {
-
     }
 }
