@@ -41,6 +41,10 @@ public class JobInfoProvider {
                     Method mSparkEnvConf = niffler.getMethod(cSparkEnv, "conf");
                     Method mSparkConfGetAppId = niffler.getMethod(cSparkConf, "getAppId");
                     Object oSparkEnv = niffler.invoke(mSparkEnvStaticGet, null);
+                    // This can occur when Spark classes are available, but Spark is not running
+                    if (oSparkEnv == null) {
+                        return null;
+                    }
                     Object oSparkConf = niffler.invoke(mSparkEnvConf, oSparkEnv);
                     String appId = (String) niffler.invoke(mSparkConfGetAppId, oSparkConf);
                     LOG.debug("Successfully got job info for Spark");
@@ -84,7 +88,16 @@ public class JobInfoProvider {
                 if (instance == null) {
                     LOG.debug("First invocation of JobInfoProvider, creating an IdFactory");
                     for (InfoFactory infoFactory : InfoFactory.values()) {
-                        instance = infoFactory.build(niffler);
+                        try {
+                            instance = infoFactory.build(niffler);
+                        } catch (Exception e) {
+                            /* Because this functionality is failure prone and
+                             * not essential to the functionality of the SDK,
+                             * we catch all exceptions, including NullPointerExceptions,
+                             * such that this method will *never throw anything*
+                             */
+                            LOG.debug("Unexpected failure building a JobInfoProvider for " + infoFactory.name(), e);
+                        }
                         if (instance != null) {
                             LOG.debug("Created: " + infoFactory.name());
                             return instance;
