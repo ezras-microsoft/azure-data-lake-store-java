@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>azure-data-lake-store-sdk-integration-test-spark-v2_1_1</artifactId>
+  <artifactId>azure-data-lake-store-sdk-integration-test-spark-v2_1</artifactId>
 
   <parent>
     <groupId>com.microsoft.azure</groupId>
@@ -16,11 +16,17 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.microsoft.azure</groupId>
+      <artifactId>azure-data-lake-store-sdk</artifactId>
+      <version>2.3.1</version>
+      <scope>test</scope>
+    </dependency>
     <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-core -->
     <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-core_2.11</artifactId>
-      <version>2.1.1</version>
+      <version>2.1.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
