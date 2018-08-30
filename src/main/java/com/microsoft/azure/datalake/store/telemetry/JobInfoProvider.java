@@ -12,9 +12,6 @@ public class JobInfoProvider {
     private static final Logger LOG =
             LoggerFactory.getLogger(JobInfoProvider.class);
 
-    /**
-     * Compute engine identifiers
-     */
     private final String applicationId;
     private final String engineName;
     private static JobInfoProvider instance = null;
